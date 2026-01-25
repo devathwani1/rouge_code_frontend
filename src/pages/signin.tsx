@@ -4,7 +4,11 @@ import illustration from "../assets/avatar_reg.svg";
 
 const Signin: React.FC = () => {
   return (
+    
     <div className="flex h-screen bg-[#0b0f14] text-white">
+      <header className="p-6">
+        <img src={logo} alt="RogueCode" className="w-14" />
+      </header>
       {/* LEFT PANEL */}
       <div className="flex-[2] bg-black flex flex-col gap-15 items-center justify-center">
         {/* Logo + Title */}
@@ -16,7 +20,8 @@ const Signin: React.FC = () => {
         <div className="relative mt-32">
           {/* Bubble */}
           <div className="bg-gray-200 text-black font-semibold px-8 py-4 rounded-md ml-28">
-            Create your identity. Enter the arena.
+            Welcome,
+            to the Battleground of programmers!
           </div>
 
           {/* Avatar */}
@@ -45,6 +50,10 @@ const Signin: React.FC = () => {
             className="w-full bg-transparent border-2 border-blue-500 rounded-xl px-4 py-3 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400"
           />
 
+          <a href="/forget_pass" className="text-blue-500 hover:underline text-right transition block">
+            Forget Password
+          </a>
+
           <button
             type="submit"
             className="w-full bg-blue-600 py-3 rounded-xl text-lg font-semibold hover:bg-blue-700 transition"
@@ -67,16 +76,19 @@ const Signin: React.FC = () => {
             alt="Google"
             className="w-5"
           />
-          Register with Google
+          Login with Google
         </button>
 
         {/* Sign in link */}
         <p className="mt-8 text-center text-gray-400">
           Don’t have an account?{" "}
-          <a href="/signin" className="text-blue-500 hover:underline">
-            Sign in
+          <a href="/signup" className="text-blue-500 hover:underline">
+            Sign up
           </a>
         </p>
+         <a href="/new_pass" className="text-gray-500 text-center hover:underline ">
+            Change Password
+          </a>
       </div>
     </div>
   );
