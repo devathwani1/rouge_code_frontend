@@ -1,12 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import logo from "../assets/logo.svg";
 import illustration from "../assets/avatar_reg.svg";
+import { useLoginMutation } from "../store/api/authApi";
+import { ActionRequired } from "../store/api/types";
 
 const Signin: React.FC = () => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [login, { isLoading }] = useLoginMutation();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+
+    try {
+      const result = await login(formData).unwrap();
+      if (result.success) {
+        localStorage.setItem("token", result.data.token);
+        navigate("/introduction"); // Redirect to home or introduction
+      } else if (result.action_required === ActionRequired.VERIFY_EMAIL) {
+        setErrorMsg(result.message || "Email not verified. Please verify your email.");
+        setTimeout(() => {
+          navigate("/verifyEmail");
+        }, 2000);
+      }
+    } catch (err: any) {
+      setErrorMsg(err.data?.message || err.data?.detail || "Login failed. Please check your credentials.");
+    }
+  };
+
   return (
-    
     <div className="flex h-screen bg-[#0b0f14] text-white">
-      <header className="p-6">
+      <header className="absolute top-0 left-0 p-6">
         <img src={logo} alt="RogueCode" className="w-14" />
       </header>
       {/* LEFT PANEL */}
@@ -37,28 +67,37 @@ const Signin: React.FC = () => {
       <div className="flex-1 px-20 flex flex-col justify-center">
         <h2 className="text-[46px] mb-10 font-semibold">Sign in</h2>
 
-        <form className="space-y-5">
+        {errorMsg && <div className="mb-4 p-3 bg-red-900/50 border border-red-500 text-red-200 rounded-xl">{errorMsg}</div>}
+
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <input
             type="email"
             placeholder="Email"
+            required
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             className="w-full bg-transparent border-2 border-blue-500 rounded-xl px-4 py-3 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400"
           />
 
           <input
             type="password"
             placeholder="Password"
+            required
+            value={formData.password}
+            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             className="w-full bg-transparent border-2 border-blue-500 rounded-xl px-4 py-3 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400"
           />
 
-          <a href="/forget_pass" className="text-blue-500 hover:underline text-right transition block">
+          <Link to="/forget_pass" className="text-blue-500 hover:underline text-right transition block">
             Forget Password
-          </a>
+          </Link>
 
           <button
             type="submit"
-            className="w-full bg-blue-600 py-3 rounded-xl text-lg font-semibold hover:bg-blue-700 transition"
+            disabled={isLoading}
+            className="w-full bg-blue-600 py-3 rounded-xl text-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
           >
-            Sign in
+            {isLoading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
@@ -82,13 +121,13 @@ const Signin: React.FC = () => {
         {/* Sign in link */}
         <p className="mt-8 text-center text-gray-400">
           Don’t have an account?{" "}
-          <a href="/signup" className="text-blue-500 hover:underline">
+          <Link to="/signup" className="text-blue-500 hover:underline">
             Sign up
-          </a>
+          </Link>
         </p>
-         <a href="/new_pass" className="text-gray-500 text-center hover:underline ">
-            Change Password
-          </a>
+        <Link to="/new_pass" className="text-gray-500 text-center hover:underline block mt-2">
+          Change Password
+        </Link>
       </div>
     </div>
   );

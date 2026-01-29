@@ -5,15 +5,18 @@ import Forget from "./pages/forget_pass";
 import New_pass from "./pages/new_pass";
 import Verify from "./pages/verifyEmail";
 import Introduction from "./pages/introduction";
+import Admin from "./pages/Admin";
+
 function App() {
   return (
     <Routes>
       <Route path="/signup" element={<Signup />} />
       <Route path="/signin" element={<Signin />} />
-      <Route path="/forget_pass" element={<Forget />}/>
-      <Route path="/new_pass" element={<New_pass />}/>
-      <Route path="/verifyEmail" element={<Verify/>}/>
-      <Route path="/introduction" element={<Introduction/>}/>
+      <Route path="/forget_pass" element={<Forget />} />
+      <Route path="/new_pass" element={<New_pass />} />
+      <Route path="/verifyEmail" element={<Verify />} />
+      <Route path="/introduction" element={<Introduction />} />
+      <Route path="/admin/*" element={<Admin />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
