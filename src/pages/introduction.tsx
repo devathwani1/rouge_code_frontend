@@ -1,13 +1,45 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.svg";
-import avatar from "../assets/avatar_intro.svg";
+import Avatar from "../assets/avatar_intro.svg";
+import AvatarBox from "../components/AvatarBox";
+
+const dialogues = [
+  "Welcome to Rogue Code !",
+  "This is not a practice platform. This is a survival.",
+  "Every day, you will be given a fixed set of coding challenges — based on the difficulty you choose.",
+  "You get three lives.",
+  "Fail to complete your daily challenge, and you lose one.",
+  "Fail three days in a row…",
+  "…and everything resets. No streak hacks. No binge solving. No shortcuts.",
+  "Progress here is earned only through consistency.",
+  "Solve daily. Survive longer. Go deeper.",
+  "Are you ready to start your run?"
+];
 
 const Intro: React.FC = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const navigate = useNavigate();
+
+  const handleNext = () => {
+    if (currentIndex < dialogues.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    } else {
+      handleSkip();
+    }
+  };
+
+  const handleSkip = () => {
+    navigate("/language");
+  };
 
   return (
-    <div className="min-h-screen bg-[#1c1c1c] text-white flex flex-col">
-      
-      <header className="p-6">
+    <div
+      className="min-h-screen bg-[#1c1c1c] text-white flex flex-col cursor-pointer select-none"
+      onClick={handleNext}
+    >
+
+      <header className="p-2 bg-[#282828]" >
         <img src={logo} alt="RogueCode" className="w-14" />
       </header>
 
@@ -16,33 +48,20 @@ const Intro: React.FC = () => {
         <h1 className="text-4xl font-bold tracking-wide">ROGUECODE</h1>
       </div>
 
-      <div className="mx-auto mb-10 w-[90%] max-w-5xl border-4 border-white flex bg-black ">
-      
-        <div className="w-1/4 bg-white flex items-end justify-center overflow-hidden">
-          <img
-            src={avatar}
-            alt="Avatar"
-            className="h-[260px] object-contain -mb-2"
-          />
-        </div>
-
-        <div className="w-3/4 p-6 relative flex items-center">
-          <p className="text-lg text-white">
-            Welcome to {" "}
-            <span className="text-blue-400">Rogue Code</span>{" "}!
-          </p>
-
-          <button
-            type = "submit"
-            className="group absolute bottom-4 right-6 flex items-center gap-2"
-          >
-            <span className="opacity-30 group-hover:opacity-70 transition text-sm">
-              Skip
-            </span>
-            <span className="text-3xl">{">>>"}</span>
-          </button>
-        </div>
-      </div>
+      <AvatarBox
+        avatar={Avatar}
+        text={
+          <>
+            {dialogues[currentIndex].split('\n').map((line, i) => (
+              <React.Fragment key={i}>
+                {line}
+                {i < dialogues[currentIndex].split('\n').length - 1 && <br />}
+              </React.Fragment>
+            ))}
+          </>
+        }
+        onSkip={handleSkip}
+      />
     </div>
   );
 };
