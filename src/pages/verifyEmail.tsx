@@ -1,7 +1,11 @@
 import React from "react";
+import logo from "../assets/logo.svg"
 const Activation: React.FC = () => {
   return (
     <div className="flex h-screen bg-[#0b0f14] text-white items-center justify-center">
+      <header className="p-2 bg-[#282828]" >
+        <img src={logo} alt="RogueCode" className="w-14" />
+      </header>
       <div className="w-full text-center ">
         <h1 className="text-[46px] font-bold">
           Check Your Inbox
