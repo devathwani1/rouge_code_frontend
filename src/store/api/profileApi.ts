@@ -1,4 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQuery } from "./baseQuery";
 
 export interface ProfileData {
     language?: string;
@@ -13,23 +14,14 @@ export interface ProfileData {
 
 export const profileApi = createApi({
     reducerPath: "profileApi",
-    baseQuery: fetchBaseQuery({
-        baseUrl: "http://127.0.0.1:8000/profiles/",
-        prepareHeaders: (headers) => {
-            const token = localStorage.getItem("token");
-            if (token) {
-                headers.set("authorization", `Bearer ${token}`);
-            }
-            return headers;
-        },
-    }),
+    baseQuery,
     endpoints: (builder) => ({
         getProfile: builder.query<ProfileData, void>({
-            query: () => "me/",
+            query: () => "profiles/me/",
         }),
         updateProfile: builder.mutation<ProfileData, Partial<ProfileData>>({
             query: (data) => ({
-                url: "me/",
+                url: "profiles/me/",
                 method: "PATCH",
                 body: data,
             }),

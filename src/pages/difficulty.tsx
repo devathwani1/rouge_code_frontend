@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import logo from "../assets/logo.svg";
@@ -7,7 +7,7 @@ import AvatarBox from "../components/AvatarBox";
 import easy from "../assets/easy.svg";
 import medium from "../assets/medium.svg";
 import hard from "../assets/hard.svg";
-import { useUpdateProfileMutation } from "../store/api/profileApi";
+import { useUpdateProfileMutation, useGetProfileQuery } from "../store/api/profileApi";
 
 type GravityCardProps = {
   glow: string;
@@ -83,7 +83,14 @@ const GravityCard: React.FC<GravityCardProps> = ({
 
 const Difficulty: React.FC = () => {
   const navigate = useNavigate();
+  const { data: profile } = useGetProfileQuery();
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+
+  useEffect(() => {
+    if (profile?.difficulty) {
+      navigate("/question");
+    }
+  }, [profile, navigate]);
 
   const handleSelect = async (difficulty: string) => {
     try {

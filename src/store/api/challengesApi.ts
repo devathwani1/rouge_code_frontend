@@ -1,4 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQuery } from "./baseQuery";
 
 export interface QuestionParameter {
     name: string;
@@ -27,17 +28,17 @@ export interface QuestionData {
 
 export const challengesApi = createApi({
     reducerPath: "challengesApi",
-    baseQuery: fetchBaseQuery({ baseUrl: "http://127.0.0.1:8000/challenges/" }),
+    baseQuery,
     endpoints: (builder) => ({
         createQuestion: builder.mutation<any, QuestionData>({
             query: (data) => ({
-                url: "questions/",
+                url: "challenges/questions/",
                 method: "POST",
                 body: data,
             }),
         }),
         listQuestions: builder.query<any, void>({
-            query: () => "",
+            query: () => "challenges/",
         }),
     }),
 });
