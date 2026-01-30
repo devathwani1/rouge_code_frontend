@@ -26,6 +26,7 @@ const Signup: React.FC = () => {
     try {
       const result = await register(formData).unwrap();
       if (result.success || result.action_required === ActionRequired.VERIFY_EMAIL) {
+        alert(ActionRequired.VERIFY_EMAIL)
         toast.success(result.message || "Registration successful! Please verify your email.");
         setTimeout(() => {
           navigate("/verifyEmail");

@@ -17,7 +17,7 @@ function App() {
     <>
       <Toaster position="top-right" reverseOrder={false} />
       <Routes>
-        <Route path="/" element={<Introduction />} />
+        <Route path="/introduction" element={<Introduction />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/signin" element={<Signin />} />
         <Route path="/forget_pass" element={<Forget />} />
@@ -25,7 +25,7 @@ function App() {
         <Route path="/language" element={<Language />} />
         <Route path="/question" element={<Questions />} />
         <Route path="/difficulty" element={<Difficulty />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/verifyEmail" element={<Verify/>}/>
       </Routes>
     </>
   );
