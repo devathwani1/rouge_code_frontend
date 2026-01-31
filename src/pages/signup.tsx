@@ -47,7 +47,7 @@ const Signup: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-[#0b0f14] text-white">
-      <header className="p-2 bg-[#282828]" >
+      <header className="p-2" >
         <img src={logo} alt="RogueCode" className="w-14" />
       </header>
       <div className="flex-[2] bg-black flex flex-col gap-15 items-center justify-center">
