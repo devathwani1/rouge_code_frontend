@@ -11,6 +11,7 @@ import Admin from "./pages/Admin";
 import Language from "./pages/language";
 import Difficulty from "./pages/difficulty";
 import Questions from "./pages/question";
+import LandingPage from "./pages/landing_page";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/question" element={<Questions />} />
         <Route path="/difficulty" element={<Difficulty />} />
         <Route path="/verifyEmail" element={<Verify/>}/>
+        <Route path="/" element={<LandingPage/>}/>
       </Routes>
     </>
   );
