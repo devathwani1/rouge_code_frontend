@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.svg";
 import Avatar from "../assets/avatar_intro.svg";
 import AvatarBox from "../components/AvatarBox";
+import { useGetProfileQuery } from "../store/api/profileApi";
 
 const dialogues = [
   "Welcome to Rogue Code !",
@@ -20,6 +21,17 @@ const dialogues = [
 const Intro: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
+  const { data: profile } = useGetProfileQuery();
+
+  useEffect(() => {
+    if (profile) {
+      if (profile.language && profile.difficulty) {
+        navigate(`/levels/${profile.difficulty}`);
+      } else if (profile.language) {
+        navigate("/difficulty");
+      }
+    }
+  }, [profile, navigate]);
 
   const handleNext = () => {
     if (currentIndex < dialogues.length - 1) {

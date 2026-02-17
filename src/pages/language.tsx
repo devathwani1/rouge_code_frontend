@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import logo from "../assets/logo.svg";
@@ -7,11 +7,22 @@ import AvatarBox from "../components/AvatarBox";
 import python from "../assets/python.svg";
 import java from "../assets/java.svg";
 import cpp from "../assets/cpp.svg";
-import { useUpdateProfileMutation } from "../store/api/profileApi";
+import { useUpdateProfileMutation, useGetProfileQuery } from "../store/api/profileApi";
 
 const Language: React.FC = () => {
   const navigate = useNavigate();
+  const { data: profile } = useGetProfileQuery();
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+
+  useEffect(() => {
+    if (profile) {
+      if (profile.language && profile.difficulty) {
+        navigate("/question");
+      } else if (profile.language) {
+        navigate("/difficulty");
+      }
+    }
+  }, [profile, navigate]);
 
   const handleSelect = async (language: string) => {
     try {
