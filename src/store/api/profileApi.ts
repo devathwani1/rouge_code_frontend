@@ -3,7 +3,7 @@ import { baseQuery } from "./baseQuery";
 
 export interface ProfileData {
     language?: string;
-    difficulty?: string;
+    difficulty?: number;
     lives: number;
     streak: number;
     max_streak: number;

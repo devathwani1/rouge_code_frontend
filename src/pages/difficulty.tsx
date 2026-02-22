@@ -4,14 +4,13 @@ import toast from "react-hot-toast";
 import logo from "../assets/logo.svg";
 import Avatar from "../assets/avatar_intro.svg";
 import AvatarBox from "../components/AvatarBox";
-import easy from "../assets/easy.svg";
-import medium from "../assets/medium.svg";
-import hard from "../assets/hard.svg";
+
 import { useUpdateProfileMutation, useGetProfileQuery } from "../store/api/profileApi";
+import { useGetDifficultiesQuery } from "../store/api/commonApi";
 
 type GravityCardProps = {
   glow: string;
-  icon: string;
+  svgLogo: string;
   title: string;
   difficultyLabel: string;
   difficultyWidth: string;
@@ -26,7 +25,7 @@ type GravityCardProps = {
 
 const GravityCard: React.FC<GravityCardProps> = ({
   glow,
-  icon,
+  svgLogo,
   title,
   difficultyLabel,
   difficultyWidth,
@@ -41,12 +40,14 @@ const GravityCard: React.FC<GravityCardProps> = ({
   return (
     <div style={{ "--glow": glow } as React.CSSProperties}
       onClick={onClick}
-      className={`flex flex-col my-4 items-center gap-6 transition-all duration-300 ease-out ${isLoading ? 'opacity-50 select-none' : 'cursor-pointer hover:scale-105 hover:-translate-y-2 hover:shadow-[0_0_40px_var(--glow)]'}`}>
-      <img src={icon} alt={title} className="w-40 h-40 object-contain" />
-      <h2 className="text-xl font-bold tracking-wide">{title}</h2>
+      className={`flex flex-col my-4 items-center gap-6 transition-all duration-300 ease-out w-72 ${isLoading ? 'opacity-50 select-none' : 'cursor-pointer hover:scale-105 hover:-translate-y-2 hover:shadow-[0_0_40px_var(--glow)]'}`}>
+      <div
+        className="w-44 h-44 flex items-center justify-center p-2"
+        dangerouslySetInnerHTML={{ __html: svgLogo }}
+      />
+      <h2 className="text-xl font-bold tracking-wide uppercase">{title}</h2>
 
       <div className="w-64 text-sm space-y-3">
-
         <div>
           <div className="flex justify-between mb-1">
             <span className="opacity-70">DIFFICULTY</span>
@@ -84,20 +85,54 @@ const GravityCard: React.FC<GravityCardProps> = ({
 const Difficulty: React.FC = () => {
   const navigate = useNavigate();
   const { data: profile } = useGetProfileQuery();
-  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+  const { data: difficulties, isLoading: isDiffLoading } = useGetDifficultiesQuery();
+  const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
   useEffect(() => {
     if (profile?.difficulty) {
-      navigate("/question");
+      navigate(`/levels/${profile.difficulty}`);
     }
   }, [profile, navigate]);
 
-  const handleSelect = async (difficulty: string) => {
+  const handleSelect = async (difficultyId: number, name: string) => {
     try {
-      await updateProfile({ difficulty }).unwrap();
-      navigate("/question");
+      await updateProfile({ difficulty: difficultyId }).unwrap();
+      navigate(`/levels/${name.toLowerCase()}`);
     } catch (err: any) {
       toast.error(err.data?.message || err.data?.detail || "Failed to update difficulty");
+    }
+  };
+
+  const getDifficultyConfig = (name: string) => {
+    switch (name.toLowerCase()) {
+      case "low":
+        return {
+          glow: "rgba(52,211,153,0.8)",
+          accent: "bg-emerald-400",
+          diffLabel: "EASY",
+          diffWidth: "20%",
+        };
+      case "standard":
+        return {
+          glow: "rgba(250, 204, 21, 0.8)",
+          accent: "bg-yellow-300",
+          diffLabel: "MEDIUM",
+          diffWidth: "50%",
+        };
+      case "crushing":
+        return {
+          glow: "rgba(239,68,68,0.9)",
+          accent: "bg-red-600",
+          diffLabel: "HIGH",
+          diffWidth: "100%",
+        };
+      default:
+        return {
+          glow: "rgba(255,255,255,0.5)",
+          accent: "bg-gray-400",
+          diffLabel: "UNKNOWN",
+          diffWidth: "0%",
+        };
     }
   };
 
@@ -106,59 +141,42 @@ const Difficulty: React.FC = () => {
       <header className="p-2 bg-[#282828]" >
         <img src={logo} alt="RogueCode" className="w-14" />
       </header>
-      <div className="flex-1 flex flex-row gap-24 items-center justify-center">
-        <div className="flex group gap-24">
-          <GravityCard
-            glow="rgba(52,211,153,0.8)"
-            icon={easy}
-            title="LOW GRAVITY"
-            difficultyLabel="EASY"
-            difficultyWidth="20%"
-            questionsLabel="1"
-            daysLabel="90"
-            questionsWidth="20%"
-            daysWidth="100%"
-            accent="bg-emerald-400"
-            onClick={() => !isLoading && handleSelect("low")}
-            isLoading={isLoading}
-          />
+      <div className="flex-1 flex flex-row gap-12 items-center justify-center p-8">
+        {isDiffLoading ? (
+          <div className="text-xl animate-pulse opacity-50 font-bold tracking-widest uppercase">
+            Synchronizing Levels...
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-12 justify-center max-w-7xl">
+            {difficulties?.map((diff) => {
+              const config = getDifficultyConfig(diff.name);
+              const qPerDay = Math.ceil(diff.number_of_questions / diff.days);
 
-          <GravityCard
-            glow="rgba(250, 204, 21, 0.8)"
-            icon={medium}
-            title="STANDARD GRAVITY"
-            difficultyLabel="MEDIUM"
-            difficultyWidth="50%"
-            questionsLabel="2"
-            questionsWidth="50%"
-            daysLabel="45"
-            daysWidth="50%"
-            accent="bg-yellow-300"
-            onClick={() => !isLoading && handleSelect("standard")}
-            isLoading={isLoading}
-          />
-
-          <GravityCard
-            glow="rgba(239,68,68,0.9)"
-            icon={hard}
-            title="CRUSHING GRAVITY"
-            difficultyLabel="HIGH"
-            difficultyWidth="100%"
-            questionsLabel="3"
-            questionsWidth="100%"
-            daysLabel="30"
-            daysWidth="20%"
-            accent="bg-red-600"
-            onClick={() => !isLoading && handleSelect("crushing")}
-            isLoading={isLoading}
-          />
-        </div>
-
+              return (
+                <GravityCard
+                  key={diff.id}
+                  glow={config.glow}
+                  svgLogo={diff.logo}
+                  title={`${diff.name} Gravity`}
+                  difficultyLabel={config.diffLabel}
+                  difficultyWidth={config.diffWidth}
+                  questionsLabel={qPerDay.toString()}
+                  questionsWidth={`${(qPerDay / 3) * 100}%`}
+                  daysLabel={diff.days.toString()}
+                  daysWidth={`${(diff.days / 90) * 100}%`}
+                  accent={config.accent}
+                  onClick={() => !isUpdating && handleSelect(diff.id, diff.name)}
+                  isLoading={isUpdating}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <AvatarBox
         avatar={Avatar}
-        onSkip={() => navigate("/question")}
+        onSkip={() => navigate("/levels/low")}
         text={
           <>
             Pick the{" "}

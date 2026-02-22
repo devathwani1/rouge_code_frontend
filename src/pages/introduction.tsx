@@ -26,7 +26,7 @@ const Intro: React.FC = () => {
   useEffect(() => {
     if (profile) {
       if (profile.language && profile.difficulty) {
-        navigate("/question");
+        navigate(`/levels/${profile.difficulty}`);
       } else if (profile.language) {
         navigate("/difficulty");
       }

@@ -20,3 +20,30 @@ export const ActionRequired = {
     VERIFY_EMAIL: "VERIFY_EMAIL",
     LOGIN: "LOGIN",
 } as const;
+
+export interface DailyPlanItem {
+    id: string;
+    title: string;
+    difficulty: string;
+    order: number;
+}
+
+export interface DailyPlan {
+    id: string;
+    day_number: number;
+}
+
+export interface Difficulty {
+    id: number;
+    name: string;
+    mode_name: string;
+    logo: string;
+    days: number;
+    number_of_questions: number;
+}
+
+export interface ApiResponse<T> {
+    status: boolean;
+    message: string;
+    data: T;
+}
