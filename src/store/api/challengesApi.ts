@@ -75,7 +75,7 @@ export const challengesApi = createApi({
             query: ({ difficulty, day }) => `challenges/question/${difficulty}${day}`,
             transformResponse: (response: ApiResponse<QuestionData>) => response,
         }),
-        submitSolution: builder.mutation<any, { question_id: number; code: string }>({
+        submitSolution: builder.mutation<any, { question_id: string; code: string }>({
             query: (body) => ({
                 url: "challenges/submit/",
                 method: "POST",

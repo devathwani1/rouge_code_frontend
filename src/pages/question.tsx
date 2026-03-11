@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { useParams } from "react-router-dom";
-import { useGetQuestionSolveDataQuery } from "../store/api/challengesApi";
+import { useGetQuestionSolveDataQuery, useSubmitSolutionMutation } from "../store/api/challengesApi";
 import logo from "../assets/logo.svg";
 
 const Question: React.FC = () => {
   const { questionId } = useParams<{ questionId: string }>();
+  const editorRef = useRef<{ getValue(): string } | null>(null);
   const { data: response, isLoading, error } = useGetQuestionSolveDataQuery(questionId!);
+  const [submitSolution, { isLoading: isSubmitting }] = useSubmitSolutionMutation();
 
   if (isLoading) {
     return (
@@ -125,6 +127,9 @@ const Question: React.FC = () => {
                 defaultLanguage="python"
                 theme="vs-dark"
                 defaultValue={questionData.starter_code}
+                onMount={(editor) => {
+                  editorRef.current = editor;
+                }}
                 options={{
                   fontSize: 15,
                   minimap: { enabled: false },
@@ -150,11 +155,21 @@ const Question: React.FC = () => {
               </button>
             </div>
             <div className="flex gap-3">
-              <button className="bg-white/5 border border-white/10 text-gray-300 px-6 py-2 rounded-xl font-bold text-sm hover:bg-white/10 transition shadow-lg active:scale-95">
-                Run Simulation
-              </button>
-              <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-2 rounded-xl font-bold text-sm hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] transition active:scale-95">
-                Upload Logic
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!questionId) return;
+                  const code = editorRef.current?.getValue() ?? "";
+                  try {
+                    await submitSolution({ question_id: String(questionId), code });
+                  } catch (e) {
+                    console.error("Submit failed", e);
+                  }
+                }}
+                disabled={isSubmitting || !questionId}
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-2 rounded-xl font-bold text-sm hover:shadow-[0_0_20px_rgba(37,99,235,0.4)] transition active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? "Submitting…" : "Submit"}
               </button>
             </div>
           </div>
