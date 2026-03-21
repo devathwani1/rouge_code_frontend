@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import logo from "../assets/logo.svg";
 import Avatar from "../assets/avatar_intro.svg";
 import AvatarBox from "../components/AvatarBox";
 
@@ -138,9 +137,6 @@ const Difficulty: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
-      <header className="p-2 bg-[#282828]" >
-        <img src={logo} alt="RogueCode" className="w-14" />
-      </header>
       <div className="flex-1 flex flex-row gap-12 items-center justify-center p-8">
         {isDiffLoading ? (
           <div className="text-xl animate-pulse opacity-50 font-bold tracking-widest uppercase">

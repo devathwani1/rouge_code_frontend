@@ -22,18 +22,20 @@ const AvatarBox: React.FC<AvatarBoxProps> = ({ text, avatar, onSkip }) => {
         <p className="text-lg ">
           {text}
         </p>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onSkip?.();
-          }}
-          className="group absolute bottom-4 right-6 flex items-center gap-2"
-        >
-          <span className="opacity-40 group-hover:opacity-70 transition text-sm">
-            Skip
-          </span>
-          <span className="text-3xl">{">>>"}</span>
-        </button>
+        {onSkip && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onSkip();
+            }}
+            className="group absolute bottom-4 right-6 flex items-center gap-2"
+          >
+            <span className="opacity-40 group-hover:opacity-70 transition text-sm">
+              Skip
+            </span>
+            <span className="text-3xl">{">>>"}</span>
+          </button>
+        )}
       </div>
 
     </div>

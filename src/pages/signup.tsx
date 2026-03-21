@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import logo from "../assets/logo.svg";
 import illustration from "../assets/avatar_reg.svg";
 import { useRegisterMutation } from "../store/api/authApi";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 import { ActionRequired } from "../store/api/types";
 
 const Signup: React.FC = () => {
@@ -14,6 +15,11 @@ const Signup: React.FC = () => {
   });
   const [register, { isLoading }] = useRegisterMutation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) navigate("/introduction");
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,10 +51,7 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#0b0f14] text-white">
-      <header className="p-2" >
-        <img src={logo} alt="RogueCode" className="w-14" />
-      </header>
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#0b0f14] text-white">
       <div className="flex-[2] bg-black flex flex-col gap-15 items-center justify-center">
         <div className="text-center">
           <img src={logo} alt="Rogue Code Logo" className="w-[260px] mx-auto" />
@@ -114,14 +117,7 @@ const Signup: React.FC = () => {
           <span className="flex-1 h-px bg-gray-600" />
         </div>
 
-        <button className="w-full border-2 border-blue-500 text-blue-500 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-blue-500 hover:text-white transition">
-          <img
-            src="https://www.svgrepo.com/show/355037/google.svg"
-            alt="Google"
-            className="w-5"
-          />
-          Register with Google
-        </button>
+        <GoogleSignInButton variant="signup" />
 
         <p className="mt-8 text-center text-gray-400">
           Already have an account?{" "}

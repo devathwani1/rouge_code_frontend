@@ -21,16 +21,23 @@ export const ActionRequired = {
     LOGIN: "LOGIN",
 } as const;
 
+/** Per-question progress for the authenticated user on this daily plan */
+export type DailyPlanItemStatus = "Completed" | "Failed" | "Pending";
+
 export interface DailyPlanItem {
     id: string;
     title: string;
     difficulty: string;
     order: number;
+    status: DailyPlanItemStatus;
 }
+
+export type DayPlanStatus = "Success" | "Failed" | "Current" | "Upcoming";
 
 export interface DailyPlan {
     id: string;
     day_number: number;
+    status: DayPlanStatus;
 }
 
 export interface Difficulty {

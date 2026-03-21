@@ -1,7 +1,29 @@
-import React, { useState } from "react";
-import { useCreateQuestionMutation } from "../../store/api/challengesApi";
-import type { QuestionParameter, TestCase, TypeSchema, TypeKind, PrimitiveName } from "../../store/api/challengesApi";
-import { Plus, Trash2, ChevronRight, Settings } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+    useCreateQuestionMutation,
+    useGetQuestionByIdQuery,
+    useUpdateQuestionMutation,
+} from "../../store/api/challengesApi";
+import type {
+    QuestionData,
+    QuestionParameter,
+    TestCase,
+    TypeSchema,
+    TypeKind,
+    PrimitiveName,
+} from "../../store/api/challengesApi";
+import { Plus, Trash2, ChevronRight, Settings, Pencil } from "lucide-react";
+
+function formatValueForForm(v: unknown): string {
+    if (v === null || v === undefined) return "";
+    if (typeof v === "string") return v;
+    try {
+        return JSON.stringify(v);
+    } catch {
+        return String(v);
+    }
+}
 
 // --- Recursive Type Selector Component ---
 interface TypeSelectorProps {
@@ -70,8 +92,25 @@ const TypeSelector: React.FC<TypeSelectorProps> = ({ value, onChange, label }) =
     );
 };
 
+export interface AddQuestionProps {
+    /** When set, form loads this question and PATCHes on submit. */
+    editQuestionId?: string;
+}
+
 // --- Main AddQuestion Component ---
-const AddQuestion: React.FC = () => {
+const AddQuestion: React.FC<AddQuestionProps> = ({ editQuestionId }) => {
+    const navigate = useNavigate();
+    const isEdit = Boolean(editQuestionId);
+
+    const loadedIdRef = useRef<string | null>(null);
+
+    const {
+        data: existingQuestion,
+        isLoading: isLoadingQuestion,
+        isError: isLoadError,
+        error: loadError,
+    } = useGetQuestionByIdQuery(editQuestionId!, { skip: !editQuestionId });
+
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
     const [constraints, setConstraints] = useState("");
@@ -87,7 +126,49 @@ const AddQuestion: React.FC = () => {
         { input_data: [], expected_output: "", is_hidden: false }
     ]);
 
-    const [createQuestion, { isLoading, isSuccess, isError, error }] = useCreateQuestionMutation();
+    const [createQuestion, { isLoading: isCreating, isSuccess: isCreateSuccess, isError: isCreateError, error: createError }] =
+        useCreateQuestionMutation();
+    const [updateQuestion, { isLoading: isUpdating, isSuccess: isUpdateSuccess, isError: isUpdateError, error: updateError }] =
+        useUpdateQuestionMutation();
+
+    const isLoading = isCreating || isUpdating;
+    const isSuccess = isEdit ? isUpdateSuccess : isCreateSuccess;
+    const isError = isEdit ? isUpdateError : isCreateError;
+    const error = isEdit ? updateError : createError;
+
+    useEffect(() => {
+        loadedIdRef.current = null;
+    }, [editQuestionId]);
+
+    useEffect(() => {
+        if (!editQuestionId || !existingQuestion) return;
+        if (String(existingQuestion.id) !== String(editQuestionId)) return;
+        if (loadedIdRef.current === editQuestionId) return;
+        loadedIdRef.current = editQuestionId;
+
+        const q = existingQuestion;
+        setTitle(q.title);
+        setDescription(q.description);
+        setConstraints(q.constraints ?? "");
+        setFunctionName(q.function_name);
+        setDifficulty(q.difficulty);
+        setReturnType(q.return_type);
+
+        const params = q.parameters?.length
+            ? q.parameters.map((p, i) => ({ ...p, order: p.order ?? i + 1 }))
+            : [{ name: "", order: 1, type_schema: { kind: "primitive" as const, name: "int" as const } }];
+        setParameters(params);
+
+        const tcList =
+            q.test_cases?.length > 0
+                ? q.test_cases.map((tc) => ({
+                      input_data: params.map((_, i) => formatValueForForm(tc.input_data?.[i])),
+                      expected_output: formatValueForForm(tc.expected_output),
+                      is_hidden: tc.is_hidden,
+                  }))
+                : [{ input_data: params.map(() => ""), expected_output: "", is_hidden: false }];
+        setTestCases(tcList);
+    }, [editQuestionId, existingQuestion]);
 
     const addParameter = () => {
         setParameters([...parameters, { name: "", order: parameters.length + 1, type_schema: { kind: "primitive", name: "int" } }]);
@@ -155,40 +236,100 @@ const AddQuestion: React.FC = () => {
                 }))
             };
 
-            await createQuestion(payload as any).unwrap();
-
-            // Reset form
-            setTitle("");
-            setDescription("");
-            setConstraints("");
-            setFunctionName("");
-            setParameters([{ name: "", order: 1, type_schema: { kind: "primitive", name: "int" } }]);
-            setTestCases([{ input_data: [], expected_output: "", is_hidden: false }]);
+            if (isEdit && editQuestionId) {
+                await updateQuestion({
+                    id: editQuestionId,
+                    body: payload as QuestionData,
+                }).unwrap();
+            } else {
+                await createQuestion(payload as QuestionData).unwrap();
+                setTitle("");
+                setDescription("");
+                setConstraints("");
+                setFunctionName("");
+                setParameters([{ name: "", order: 1, type_schema: { kind: "primitive", name: "int" } }]);
+                setTestCases([{ input_data: [], expected_output: "", is_hidden: false }]);
+            }
         } catch (err) {
             console.error("Failed to save: ", err);
         }
     };
 
+    if (isEdit && isLoadingQuestion) {
+        return (
+            <div className="max-w-6xl mx-auto px-4 py-12 text-center text-gray-400 animate-pulse">
+                Loading question…
+            </div>
+        );
+    }
+
+    if (isEdit && (isLoadError || !existingQuestion)) {
+        return (
+            <div className="max-w-6xl mx-auto px-4 py-12">
+                <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-300">
+                    <p className="font-bold mb-2">Could not load question</p>
+                    <pre className="text-xs whitespace-pre-wrap overflow-auto max-h-48">
+                        {JSON.stringify((loadError as { data?: unknown })?.data ?? loadError, null, 2)}
+                    </pre>
+                    <Link
+                        to="/admin"
+                        className="inline-block mt-4 text-blue-400 hover:text-blue-300 font-semibold"
+                    >
+                        ← Back to dashboard
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="max-w-6xl mx-auto px-4 py-12 pb-32">
             <header className="mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2.5 bg-blue-600/10 rounded-xl border border-blue-500/20">
-                        <Plus className="w-6 h-6 text-blue-500" />
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2.5 bg-blue-600/10 rounded-xl border border-blue-500/20">
+                            {isEdit ? (
+                                <Pencil className="w-6 h-6 text-blue-500" />
+                            ) : (
+                                <Plus className="w-6 h-6 text-blue-500" />
+                            )}
+                        </div>
+                        <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                            {isEdit ? "Refine challenge" : "Forge a Challenge"}
+                        </h1>
                     </div>
-                    <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-                        Forge a Challenge
-                    </h1>
+                    {isEdit && (
+                        <button
+                            type="button"
+                            onClick={() => navigate("/admin")}
+                            className="text-sm font-bold text-gray-500 hover:text-white transition uppercase tracking-widest"
+                        >
+                            ← Dashboard
+                        </button>
+                    )}
                 </div>
                 <p className="text-gray-400 text-lg max-w-2xl leading-relaxed">
-                    Design intricate problems with structured parameters and validated test cases.
+                    {isEdit
+                        ? "Update structured parameters and validation cases for this problem."
+                        : "Design intricate problems with structured parameters and validated test cases."}
                 </p>
             </header>
 
             {isSuccess && (
-                <div className="mb-8 p-6 bg-green-500/10 border border-green-500/20 rounded-2xl flex items-center gap-4 animate-in zoom-in-95 duration-300">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    <p className="text-green-400 font-medium">Challenge published to the arena successfully!</p>
+                <div className="mb-8 p-6 bg-green-500/10 border border-green-500/20 rounded-2xl flex flex-col sm:flex-row sm:items-center gap-4 animate-in zoom-in-95 duration-300">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0" />
+                    <p className="text-green-400 font-medium">
+                        {isEdit ? "Challenge updated successfully." : "Challenge published to the arena successfully!"}
+                    </p>
+                    {isEdit && (
+                        <button
+                            type="button"
+                            onClick={() => navigate("/admin")}
+                            className="sm:ml-auto px-4 py-2 rounded-xl bg-green-500/20 text-green-300 text-sm font-bold hover:bg-green-500/30 transition"
+                        >
+                            Back to list
+                        </button>
+                    )}
                 </div>
             )}
 
@@ -427,7 +568,13 @@ const AddQuestion: React.FC = () => {
                             <div className="relative flex items-center justify-center gap-3">
                                 <Plus className={`w-6 h-6 transition-transform duration-500 ${isLoading ? 'animate-spin' : 'group-hover:rotate-90'}`} />
                                 <span className="text-xl font-black uppercase tracking-widest text-white">
-                                    {isLoading ? "Publishing to Arena..." : "Publish Challenge"}
+                                    {isLoading
+                                        ? isEdit
+                                            ? "Saving…"
+                                            : "Publishing to Arena..."
+                                        : isEdit
+                                          ? "Save changes"
+                                          : "Publish Challenge"}
                                 </span>
                             </div>
                         </button>

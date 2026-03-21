@@ -1,11 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useVerifyEmailQuery } from "../store/api/authApi";
 
 const Activation: React.FC = () => {
-  useEffect(()=>{
-    alert("On verify email")
-  })
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
 

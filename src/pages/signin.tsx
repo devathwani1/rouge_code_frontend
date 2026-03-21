@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import logo from "../assets/logo.svg";
 import illustration from "../assets/avatar_reg.svg";
 import { useLoginMutation } from "../store/api/authApi";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 import { ActionRequired } from "../store/api/types";
 
 const Signin: React.FC = () => {
@@ -11,14 +12,25 @@ const Signin: React.FC = () => {
     email: "",
     password: "",
   });
+  const emailRef = useRef<HTMLInputElement | null>(null);
+  const passwordRef = useRef<HTMLInputElement | null>(null);
   const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) navigate("/introduction");
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const result = await login(formData).unwrap();
+      // Read from refs to avoid any edge cases where React state is briefly out of sync
+      // (e.g., autofill or very fast clicking).
+      const email = emailRef.current?.value ?? formData.email;
+      const password = passwordRef.current?.value ?? formData.password;
+      const result = await login({ email, password }).unwrap();
       if (result.success) {
         localStorage.setItem("token", result.data.token);
         toast.success(result.message || "Logged in successfully!");
@@ -38,10 +50,7 @@ const Signin: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#0b0f14] text-white">
-      <header className="absolute top-0 left-0 p-6">
-        <img src={logo} alt="RogueCode" className="w-14" />
-      </header>
+    <div className="flex min-h-[calc(100vh-4rem)] bg-[#0b0f14] text-white">
 
       <div className="flex-[2] bg-black flex flex-col gap-15 items-center justify-center">
         <div className="text-center">
@@ -72,6 +81,7 @@ const Signin: React.FC = () => {
             placeholder="Email"
             required
             value={formData.email}
+            ref={emailRef}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             className="w-full bg-transparent border-2 border-blue-500 rounded-xl px-4 py-3 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -81,6 +91,7 @@ const Signin: React.FC = () => {
             placeholder="Password"
             required
             value={formData.password}
+            ref={passwordRef}
             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
             className="w-full bg-transparent border-2 border-blue-500 rounded-xl px-4 py-3 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -104,14 +115,7 @@ const Signin: React.FC = () => {
           <span className="flex-1 h-px bg-gray-600" />
         </div>
 
-        <button className="w-full border-2 border-blue-500 text-blue-500 py-3 rounded-xl flex items-center justify-center gap-3 hover:bg-blue-500 hover:text-white transition">
-          <img
-            src="https://www.svgrepo.com/show/355037/google.svg"
-            alt="Google"
-            className="w-5"
-          />
-          Login with Google
-        </button>
+        <GoogleSignInButton variant="signin" />
 
         <p className="mt-8 text-center text-gray-400">
           Don’t have an account?{" "}
@@ -119,9 +123,6 @@ const Signin: React.FC = () => {
             Sign up
           </Link>
         </p>
-        <Link to="/new_pass" className="text-gray-500 text-center hover:underline block mt-2">
-          Change Password
-        </Link>
       </div>
     </div>
   );

@@ -51,10 +51,6 @@ const Intro: React.FC = () => {
       onClick={handleNext}
     >
 
-      <header className="p-2 bg-[#282828]" >
-        <img src={logo} alt="RogueCode" className="w-14" />
-      </header>
-
       <div className="flex-1 flex flex-col items-center justify-center">
         <img src={logo} alt="Rogue Code Logo" className="w-[260px] mx-auto" />
         <h1 className="text-4xl font-bold tracking-wide">ROGUECODE</h1>

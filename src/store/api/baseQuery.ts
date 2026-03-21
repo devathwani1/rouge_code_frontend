@@ -4,7 +4,21 @@ import toast from "react-hot-toast";
 
 const rawBaseQuery = fetchBaseQuery({
     baseUrl: "http://127.0.0.1:8000/",
-    prepareHeaders: (headers) => {
+    prepareHeaders: (headers, { endpoint }) => {
+        // Avoid sending an old/invalid JWT to auth endpoints.
+        // Otherwise `CustomJWTAuthentication` can block login/register on the first try.
+        const skipAuthEndpoints = new Set([
+            "login",
+            "register",
+            "verifyEmail",
+            "passwordResetRequest",
+            "passwordResetConfirm",
+            "googleAuth",
+        ]);
+        if (endpoint && skipAuthEndpoints.has(endpoint)) {
+            return headers;
+        }
+
         const token = localStorage.getItem("token");
         if (token) {
             headers.set("authorization", `Bearer ${token}`);

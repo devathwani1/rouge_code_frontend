@@ -13,7 +13,7 @@ const Sidebar: React.FC = () => {
     ];
 
     return (
-        <div className="w-64 h-screen bg-black border-r border-blue-900/30 flex flex-col p-6 sticky top-0">
+        <div className="w-64 h-[calc(100vh-4rem)] bg-black border-r border-blue-900/30 flex flex-col p-6 sticky top-16">
             {/* Logo */}
             <div className="flex items-center gap-3 mb-12">
                 <img src={logo} alt="RogueCode" className="w-10" />
@@ -23,7 +23,11 @@ const Sidebar: React.FC = () => {
             {/* Menu */}
             <nav className="flex-1 space-y-2">
                 {menuItems.map((item) => {
-                    const isActive = location.pathname === item.path;
+                    const isActive =
+                        item.path === "/admin/questions"
+                            ? location.pathname === item.path ||
+                              location.pathname.startsWith("/admin/questions/edit/")
+                            : location.pathname === item.path;
                     return (
                         <Link
                             key={item.name}

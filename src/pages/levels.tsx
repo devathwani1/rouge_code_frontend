@@ -6,10 +6,11 @@ import { useGetProfileQuery } from "../store/api/profileApi";
 const LevelsPage = () => {
   const { difficulty } = useParams<{ difficulty: string }>();
   const { data: dailyPlans, isLoading: isPlansLoading } = useGetDailyPlansQuery();
-  const { data: profile, isLoading: isProfileLoading } = useGetProfileQuery();
+  const { isLoading: isProfileLoading } = useGetProfileQuery();
 
   const isLoading = isPlansLoading || isProfileLoading;
-  const completedDays = profile?.streak || 0; // Assuming streak represents completed days for unlock logic
+  const completedDays =
+    dailyPlans?.filter((p) => p.status === "Success").length ?? 0;
   const totalDays = dailyPlans?.length || 0;
 
   if (isLoading) {
@@ -46,10 +47,7 @@ const LevelsPage = () => {
             {/* Visual accent */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[100px] -mr-32 -mt-32" />
 
-            <DaysGrid
-              dailyPlans={dailyPlans || []}
-              completedDays={completedDays}
-            />
+            <DaysGrid dailyPlans={dailyPlans || []} />
           </div>
         </div>
 
@@ -61,7 +59,15 @@ const LevelsPage = () => {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-              <span>Perfect Score Requirement</span>
+              <span>Passed day</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+              <span>Failed day</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-gray-500" />
+              <span>Upcoming</span>
             </div>
           </div>
           <p className="uppercase tracking-[0.1em] text-[10px] font-bold">RogueCode Challenge Engine v1.0</p>
