@@ -24,8 +24,8 @@ const LevelsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-black to-black p-12 text-white">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <div className="min-h-screen bg-[#0a0a0a] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-900/20 via-black to-black px-4 py-8 sm:px-8 sm:py-12 text-white">
+      <div className="max-w-7xl mx-auto min-w-0 space-y-8 sm:space-y-12">
         <header className="space-y-4">
           <div className="flex items-center gap-4">
             <span className="px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.2em] uppercase bg-blue-500/10 text-blue-400 border border-blue-500/20 backdrop-blur-sm shadow-[0_0_20px_rgba(59,130,246,0.1)]">
@@ -41,11 +41,11 @@ const LevelsPage = () => {
           </p>
         </header>
 
-        <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-[2.5rem] blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000" />
-          <div className="relative bg-[#111111]/40 backdrop-blur-xl border border-white/5 rounded-[2rem] p-10 overflow-hidden shadow-2xl">
-            {/* Visual accent */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[100px] -mr-32 -mt-32" />
+        <div className="relative group min-w-0">
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 rounded-[2.5rem] blur-2xl opacity-20 group-hover:opacity-40 transition duration-1000 pointer-events-none" />
+          <div className="relative bg-[#111111]/40 backdrop-blur-xl border border-white/5 rounded-[2rem] p-4 sm:p-6 md:p-8 shadow-2xl min-w-0">
+            {/* Visual accent — inset so it doesn’t force overflow */}
+            <div className="pointer-events-none absolute top-0 right-0 size-48 max-w-full bg-blue-500/5 blur-[100px] rounded-full" />
 
             <DaysGrid dailyPlans={dailyPlans || []} />
           </div>

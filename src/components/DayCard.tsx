@@ -40,7 +40,7 @@ const DayCard: React.FC<Props> = ({ day, status, onClick }) => {
   return (
     <div
       onClick={isLocked ? undefined : onClick}
-      className={`w-48 h-48 rounded-2xl flex flex-col items-center justify-center transition-all duration-300 ${styles.card}`}
+      className={`w-full max-w-[11.5rem] aspect-square rounded-2xl flex flex-col items-center justify-center transition-all duration-300 ${styles.card}`}
     >
       {isLocked ? (
         <Lock className="text-gray-500" size={45} />
