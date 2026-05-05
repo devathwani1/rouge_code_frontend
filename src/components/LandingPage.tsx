@@ -1,4 +1,5 @@
 import { useEffect, useRef, useMemo, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Scene,
   OrthographicCamera,
@@ -210,6 +211,7 @@ export default function LandingPage({
   className = "",
   style = {},
 }: LandingPageProps) {
+  const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number>(0);
   const isVisibleRef = useRef(true);
@@ -460,6 +462,7 @@ export default function LandingPage({
                 overflow: "hidden",
                 position: "relative"
               }}
+              onClick={() => navigate("/signin")}
               onMouseEnter={(e) => {
                 e.currentTarget.style.background = "rgba(100, 230, 255, 0.25)";
                 e.currentTarget.style.boxShadow = "0 0 30px rgba(0, 210, 255, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.2)";
