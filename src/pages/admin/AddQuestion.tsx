@@ -15,6 +15,17 @@ import type {
 } from "../../store/api/challengesApi";
 import { Plus, Trash2, ChevronRight, Settings, Pencil } from "lucide-react";
 
+function getSaveErrorMessage(err: unknown): string {
+    const e = err as { status?: number; data?: { message?: string; error?: unknown } };
+    if (e?.status === 401) return "Unauthorized. Please sign in again.";
+    if (e?.status === 403) return "Forbidden. This action requires a staff/admin account.";
+    if (typeof e?.data?.message === "string" && e.data.message.trim()) return e.data.message;
+    if (Array.isArray(e?.data?.error) && e.data.error.length > 0) {
+        return e.data.error.join(", ");
+    }
+    return "Failed to publish challenge.";
+}
+
 function formatValueForForm(v: unknown): string {
     if (v === null || v === undefined) return "";
     if (typeof v === "string") return v;
@@ -357,6 +368,9 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ editQuestionId }) => {
                     <Trash2 className="w-5 h-5 text-red-500 mt-0.5" />
                     <div>
                         <p className="text-red-400 font-bold mb-1">Failed to publish</p>
+                        <p className="text-sm text-red-300/90 mb-2">
+                            {getSaveErrorMessage(error)}
+                        </p>
                         <pre className="text-xs text-red-300/70 whitespace-pre-wrap">
                             {JSON.stringify((error as any)?.data || error, null, 2)}
                         </pre>
