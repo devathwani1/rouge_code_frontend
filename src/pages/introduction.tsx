@@ -21,17 +21,20 @@ const dialogues = [
 const Intro: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
-  const { data: profile } = useGetProfileQuery();
+  const { data: profile, isLoading, isFetching } = useGetProfileQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
 
   useEffect(() => {
-    if (profile) {
+    // Avoid redirecting from stale cached profile from a previous session.
+    if (!isLoading && !isFetching && profile) {
       if (profile.language && profile.difficulty) {
         navigate(`/levels/${profile.difficulty}`);
       } else if (profile.language) {
         navigate("/difficulty");
       }
     }
-  }, [profile, navigate]);
+  }, [profile, isLoading, isFetching, navigate]);
 
   const handleNext = () => {
     if (currentIndex < dialogues.length - 1) {

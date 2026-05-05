@@ -52,6 +52,9 @@ const TopBar: React.FC = () => {
             <Link to="/levels" className="hover:text-white transition-colors">
               Levels
             </Link>
+            <Link to="/leaderboard" className="hover:text-white transition-colors">
+              Leaderboard
+            </Link>
             <Link to="/profile" className="hover:text-white transition-colors">
               Profile
             </Link>

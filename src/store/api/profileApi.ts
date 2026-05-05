@@ -42,6 +42,18 @@ export interface ProfileStatsData {
     day_results?: DayResultEntry[];
 }
 
+export interface LeaderboardRow {
+    rank: number;
+    user_id: number;
+    username: string;
+    email: string;
+    difficulty: string | null;
+    level: number;
+    streak: number;
+    max_streak: number;
+    challenge_day: number;
+}
+
 export const profileApi = createApi({
     reducerPath: "profileApi",
     baseQuery,
@@ -62,6 +74,9 @@ export const profileApi = createApi({
         getProfileStats: builder.query<ProfileStatsData, void>({
             query: () => "profiles/me/stats/",
             providesTags: ["ProfileStats"],
+        }),
+        getLeaderboard: builder.query<LeaderboardRow[], void>({
+            query: () => "profiles/leaderboard/",
         }),
         resetRun: builder.mutation<{ success: boolean; message: string }, void>({
             query: () => ({
@@ -87,5 +102,6 @@ export const {
     useGetProfileQuery,
     useUpdateProfileMutation,
     useGetProfileStatsQuery,
+    useGetLeaderboardQuery,
     useResetRunMutation,
 } = profileApi;

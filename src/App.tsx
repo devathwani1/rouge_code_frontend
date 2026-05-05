@@ -12,6 +12,7 @@ import Language from "./pages/language";
 import Difficulty from "./pages/difficulty";
 import Question from "./pages/question";
 import Levels from "./pages/levels";
+import Leaderboard from "./pages/leaderboard";
 
 import LandingPage from "./pages/landing_page";
 import TodayQuestions from "./pages/today-questions";
@@ -40,6 +41,7 @@ function App() {
           <Route path="/verifyEmail" element={<Verify />} />
           <Route path="/levels/:difficulty" element={<Levels />} />
           <Route path="/levels" element={<Levels />} />
+          <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/daily-plan/:planId" element={<TodayQuestions />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/game-over" element={<GameOver />} />

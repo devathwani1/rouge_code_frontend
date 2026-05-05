@@ -35,6 +35,7 @@ export interface QuestionData {
     title: string;
     slug?: string;
     description: string;
+    image_url?: string | null;
     constraints?: string;
     function_name: string;
     return_type: TypeSchema;
@@ -125,7 +126,7 @@ export const challengesApi = createApi({
         "Challenges",
     ],
     endpoints: (builder) => ({
-        createQuestion: builder.mutation<QuestionData, QuestionData>({
+        createQuestion: builder.mutation<QuestionData, QuestionData | FormData>({
             query: (data) => ({
                 url: "challenges/questions/",
                 method: "POST",
@@ -153,7 +154,7 @@ export const challengesApi = createApi({
         }),
         updateQuestion: builder.mutation<
             QuestionData,
-            { id: string; body: QuestionData }
+            { id: string; body: QuestionData | FormData }
         >({
             query: ({ id, body }) => ({
                 url: `challenges/questions/${id}/`,

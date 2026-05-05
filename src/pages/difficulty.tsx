@@ -83,15 +83,17 @@ const GravityCard: React.FC<GravityCardProps> = ({
 
 const Difficulty: React.FC = () => {
   const navigate = useNavigate();
-  const { data: profile } = useGetProfileQuery();
+  const { data: profile, isLoading: isProfileLoading, isFetching: isProfileFetching } = useGetProfileQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
   const { data: difficulties, isLoading: isDiffLoading } = useGetDifficultiesQuery();
   const [updateProfile, { isLoading: isUpdating }] = useUpdateProfileMutation();
 
   useEffect(() => {
-    if (profile?.difficulty) {
+    if (!isProfileLoading && !isProfileFetching && profile?.difficulty) {
       navigate(`/levels/${profile.difficulty}`);
     }
-  }, [profile, navigate]);
+  }, [profile, isProfileLoading, isProfileFetching, navigate]);
 
   const handleSelect = async (difficultyId: number, name: string) => {
     try {

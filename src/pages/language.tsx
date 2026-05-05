@@ -10,18 +10,20 @@ import { useUpdateProfileMutation, useGetProfileQuery } from "../store/api/profi
 
 const Language: React.FC = () => {
   const navigate = useNavigate();
-  const { data: profile } = useGetProfileQuery();
+  const { data: profile, isLoading: isProfileLoading, isFetching: isProfileFetching } = useGetProfileQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
   useEffect(() => {
-    if (profile) {
+    if (!isProfileLoading && !isProfileFetching && profile) {
       if (profile.language && profile.difficulty) {
         navigate("/question");
       } else if (profile.language) {
         navigate("/difficulty");
       }
     }
-  }, [profile, navigate]);
+  }, [profile, isProfileLoading, isProfileFetching, navigate]);
 
   const handleSelect = async (language: string) => {
     try {

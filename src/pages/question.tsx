@@ -182,6 +182,17 @@ const Question: React.FC = () => {
             </p>
           </div>
 
+          {questionData.image_url && (
+            <div className="mt-8">
+              <img
+                src={questionData.image_url}
+                alt={`${questionData.title} reference`}
+                className="max-h-[420px] w-full object-contain rounded-2xl border border-white/10 bg-black/30"
+                loading="lazy"
+              />
+            </div>
+          )}
+
           {/* Examples section */}
           <div className="mt-12 space-y-8">
             <h2 className="text-xl font-bold text-white flex items-center gap-2">

@@ -113,6 +113,8 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ editQuestionId }) => {
 
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string>("");
     const [constraints, setConstraints] = useState("");
     const [functionName, setFunctionName] = useState("");
     const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("easy");
@@ -149,6 +151,8 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ editQuestionId }) => {
         const q = existingQuestion;
         setTitle(q.title);
         setDescription(q.description);
+        setImageFile(null);
+        setImagePreview(q.image_url ?? "");
         setConstraints(q.constraints ?? "");
         setFunctionName(q.function_name);
         setDifficulty(q.difficulty);
@@ -236,15 +240,30 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ editQuestionId }) => {
                 }))
             };
 
+            const formData = new FormData();
+            formData.append("title", payload.title);
+            formData.append("description", payload.description);
+            formData.append("constraints", payload.constraints);
+            formData.append("function_name", payload.function_name);
+            formData.append("difficulty", payload.difficulty);
+            formData.append("return_type", JSON.stringify(payload.return_type));
+            formData.append("parameters", JSON.stringify(payload.parameters));
+            formData.append("test_cases", JSON.stringify(payload.test_cases));
+            if (imageFile) {
+                formData.append("image", imageFile);
+            }
+
             if (isEdit && editQuestionId) {
                 await updateQuestion({
                     id: editQuestionId,
-                    body: payload as QuestionData,
+                    body: formData,
                 }).unwrap();
             } else {
-                await createQuestion(payload as QuestionData).unwrap();
+                await createQuestion(formData).unwrap();
                 setTitle("");
                 setDescription("");
+                setImageFile(null);
+                setImagePreview("");
                 setConstraints("");
                 setFunctionName("");
                 setParameters([{ name: "", order: 1, type_schema: { kind: "primitive", name: "int" } }]);
@@ -394,6 +413,29 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ editQuestionId }) => {
                                         placeholder="Detailed problem explanation..."
                                         className="w-full bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-2xl px-6 py-4 text-white placeholder-gray-600 outline-none transition-all duration-300 hover:bg-white/[0.08] resize-none"
                                     />
+                                </div>
+
+                                <div className="md:col-span-12 space-y-2">
+                                    <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Question Image (Optional Upload)</label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const f = e.target.files?.[0] || null;
+                                            setImageFile(f);
+                                            if (f) {
+                                                setImagePreview(URL.createObjectURL(f));
+                                            }
+                                        }}
+                                        className="w-full bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-2xl px-6 py-4 text-white outline-none transition-all duration-300 hover:bg-white/[0.08]"
+                                    />
+                                    {imagePreview && (
+                                        <img
+                                            src={imagePreview}
+                                            alt="Question preview"
+                                            className="mt-3 max-h-56 rounded-xl border border-white/10 bg-black/20 object-contain"
+                                        />
+                                    )}
                                 </div>
 
                                 <div className="md:col-span-12 space-y-2">
