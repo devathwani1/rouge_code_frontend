@@ -174,7 +174,6 @@ const Difficulty: React.FC = () => {
 
       <AvatarBox
         avatar={Avatar}
-        onSkip={() => navigate("/levels/low")}
         text={
           <>
             Pick the{" "}

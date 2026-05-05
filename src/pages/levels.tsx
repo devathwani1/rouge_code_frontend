@@ -1,14 +1,29 @@
-import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import DaysGrid from "../components/DaysGrid";
 import { useGetDailyPlansQuery } from "../store/api/challengesApi";
 import { useGetProfileQuery } from "../store/api/profileApi";
 
 const LevelsPage = () => {
+  const navigate = useNavigate();
   const { difficulty } = useParams<{ difficulty: string }>();
   const { data: dailyPlans, isLoading: isPlansLoading } = useGetDailyPlansQuery();
-  const { isLoading: isProfileLoading } = useGetProfileQuery();
+  const { data: profile, isLoading: isProfileLoading, isFetching: isProfileFetching } = useGetProfileQuery();
 
-  const isLoading = isPlansLoading || isProfileLoading;
+  useEffect(() => {
+    if (isProfileLoading || isProfileFetching || !profile) return;
+
+    if (!profile.language) {
+      navigate("/language", { replace: true });
+      return;
+    }
+
+    if (!profile.difficulty) {
+      navigate("/difficulty", { replace: true });
+    }
+  }, [profile, isProfileLoading, isProfileFetching, navigate]);
+
+  const isLoading = isPlansLoading || isProfileLoading || isProfileFetching;
   const completedDays =
     dailyPlans?.filter((p) => p.status === "Success").length ?? 0;
   const totalDays = dailyPlans?.length || 0;

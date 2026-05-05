@@ -62,7 +62,6 @@ const Language: React.FC = () => {
 
       <AvatarBox
         avatar={Avatar}
-        onSkip={() => navigate("/difficulty")}
         text={
           <>
             Pick the language that suits your{" "}
