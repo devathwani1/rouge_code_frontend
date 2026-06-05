@@ -6,7 +6,6 @@ import {
     useUpdateQuestionMutation,
 } from "../../store/api/challengesApi";
 import type {
-    QuestionData,
     QuestionParameter,
     TestCase,
     TypeSchema,
