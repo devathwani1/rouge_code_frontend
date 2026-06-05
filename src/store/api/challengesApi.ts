@@ -64,6 +64,14 @@ export interface SubmitSolutionResult {
     case_results: boolean[];
 }
 
+export interface SubmitSolutionRequest {
+    question_id: string;
+    code: string;
+    language?: SolveLanguage;
+    /** Used by the temporary dummy response to mirror visible test cases in the UI. */
+    publicTestCaseCount?: number;
+}
+
 export interface ApiResponse<T> {
     success: boolean;
     message: string;
@@ -180,15 +188,22 @@ export const challengesApi = createApi({
             query: ({ difficulty, day }) => `challenges/question/${difficulty}${day}`,
             transformResponse: (response: ApiResponse<QuestionData>) => response,
         }),
-        submitSolution: builder.mutation<
-            SubmitSolutionResult,
-            { question_id: string; code: string; language?: SolveLanguage }
-        >({
-            query: (body) => ({
-                url: "challenges/submit/",
-                method: "POST",
-                body,
-            }),
+        submitSolution: builder.mutation<SubmitSolutionResult, SubmitSolutionRequest>({
+            queryFn: ({ publicTestCaseCount = 0 }) => {
+                const caseResults = Array.from(
+                    { length: Math.max(0, publicTestCaseCount) },
+                    () => true,
+                );
+
+                return {
+                    data: {
+                        passed: caseResults.length,
+                        total: caseResults.length,
+                        success: true,
+                        case_results: caseResults,
+                    },
+                };
+            },
             invalidatesTags: (_result, _err, arg) => [
                 { type: "QuestionSolve", id: arg.question_id },
                 { type: "RecentAttempts", id: "LIST" },

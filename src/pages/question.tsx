@@ -304,6 +304,7 @@ const Question: React.FC = () => {
                     question_id: String(questionId),
                     code,
                     language: solveLanguage,
+                    publicTestCaseCount: publicTestCases.length,
                   }).unwrap();
                   setSubmitError(null);
                   setCaseResults(result.case_results ?? []);
