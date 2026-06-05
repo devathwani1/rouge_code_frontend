@@ -44,8 +44,19 @@ const Signin: React.FC = () => {
           }, 2000);
         }
       }
-    } catch (err: any) {
-      toast.error(err.data?.message || err.data?.detail || "Login failed. Please check your credentials.");
+    } catch (err: unknown) {
+      const errorData =
+        typeof err === "object" && err !== null && "data" in err
+          ? (err as { data?: { message?: unknown; detail?: unknown } }).data
+          : undefined;
+      const errorMessage =
+        typeof errorData?.message === "string"
+          ? errorData.message
+          : typeof errorData?.detail === "string"
+            ? errorData.detail
+            : "Login failed. Please check your credentials.";
+
+      toast.error(errorMessage);
     }
   };
 
@@ -78,7 +89,7 @@ const Signin: React.FC = () => {
         <form className="space-y-5" onSubmit={handleSubmit}>
           <input
             type="email"
-            placeholder="Email"
+            placeholder="Login Baby"
             required
             value={formData.email}
             ref={emailRef}
