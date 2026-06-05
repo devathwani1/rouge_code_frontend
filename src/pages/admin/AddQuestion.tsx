@@ -6,7 +6,6 @@ import {
     useUpdateQuestionMutation,
 } from "../../store/api/challengesApi";
 import type {
-    QuestionData,
     QuestionParameter,
     TestCase,
     TypeSchema,
@@ -24,6 +23,11 @@ function getSaveErrorMessage(err: unknown): string {
         return e.data.error.join(", ");
     }
     return "Failed to publish challenge.";
+}
+
+function getSaveErrorDetails(err: unknown): string {
+    const e = err as { data?: unknown };
+    return JSON.stringify(e?.data || err, null, 2);
 }
 
 function formatValueForForm(v: unknown): string {
@@ -160,6 +164,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ editQuestionId }) => {
         loadedIdRef.current = editQuestionId;
 
         const q = existingQuestion;
+        /* eslint-disable react-hooks/set-state-in-effect -- Edit mode hydrates form fields once after the async question query resolves. */
         setTitle(q.title);
         setDescription(q.description);
         setImageFile(null);
@@ -183,6 +188,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ editQuestionId }) => {
                   }))
                 : [{ input_data: params.map(() => ""), expected_output: "", is_hidden: false }];
         setTestCases(tcList);
+        /* eslint-enable react-hooks/set-state-in-effect */
     }, [editQuestionId, existingQuestion]);
 
     const addParameter = () => {
@@ -372,7 +378,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ editQuestionId }) => {
                             {getSaveErrorMessage(error)}
                         </p>
                         <pre className="text-xs text-red-300/70 whitespace-pre-wrap">
-                            {JSON.stringify((error as any)?.data || error, null, 2)}
+                            {getSaveErrorDetails(error)}
                         </pre>
                     </div>
                 </div>
@@ -408,7 +414,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({ editQuestionId }) => {
                                     <label className="text-[10px] font-bold text-gray-500 uppercase tracking-widest ml-1">Difficulty</label>
                                     <select
                                         value={difficulty}
-                                        onChange={(e) => setDifficulty(e.target.value as any)}
+                                        onChange={(e) => setDifficulty(e.target.value as "easy" | "medium" | "hard")}
                                         className="w-full bg-white/5 border border-white/10 focus:border-blue-500/50 rounded-2xl px-6 py-4 text-white outline-none transition-all duration-300 appearance-none capitalize cursor-pointer hover:bg-white/[0.08]"
                                     >
                                         <option value="easy">Easy</option>
