@@ -44,8 +44,9 @@ const Signin: React.FC = () => {
           }, 2000);
         }
       }
-    } catch (err: any) {
-      toast.error(err.data?.message || err.data?.detail || "Login failed. Please check your credentials.");
+    } catch (err: unknown) {
+      const error = err as { data?: { message?: string; detail?: string } };
+      toast.error(error.data?.message || error.data?.detail || "Login failed. Please check your credentials.");
     }
   };
 
@@ -103,7 +104,7 @@ const Signin: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 py-3 rounded-xl text-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50"
+            className="w-full bg-blue-600 py-4 rounded-xl text-xl font-semibold hover:bg-blue-700 transition disabled:opacity-50"
           >
             {isLoading ? "Signing in..." : "Sign in"}
           </button>
