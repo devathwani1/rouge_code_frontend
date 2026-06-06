@@ -99,7 +99,7 @@ const Signin: React.FC = () => {
 
           <input
             type="password"
-            placeholder="Password"
+            placeholder="pass"
             required
             value={formData.password}
             ref={passwordRef}
