@@ -29,26 +29,43 @@ export interface AdminUsersResponse {
     users: AdminUserRow[];
 }
 
+export interface RegisterRequest {
+    email: string;
+    password: string;
+    confirm_password: string;
+}
+
+export interface LoginCredentials {
+    email: string;
+    password: string;
+    temporary_login?: boolean;
+}
+
+export interface GoogleAuthRequest {
+    credential: string;
+    temporary_login?: boolean;
+}
+
 export const authApi = createApi({
     reducerPath: "authApi",
     baseQuery,
     tagTypes: ["AdminUsers"],
     endpoints: (builder) => ({
-        register: builder.mutation<AuthResult, any>({
+        register: builder.mutation<AuthResult, RegisterRequest>({
             query: (userData) => ({
                 url: "accounts/register/",
                 method: "POST",
                 body: userData,
             }),
         }),
-        login: builder.mutation<AuthResult, any>({
+        login: builder.mutation<AuthResult, LoginCredentials>({
             query: (credentials) => ({
                 url: "accounts/login/",
                 method: "POST",
                 body: credentials,
             }),
         }),
-        googleAuth: builder.mutation<AuthResult, { credential: string }>({
+        googleAuth: builder.mutation<AuthResult, GoogleAuthRequest>({
             query: (body) => ({
                 url: "accounts/google/",
                 method: "POST",

@@ -10,13 +10,17 @@ export type GoogleSignInVariant = "signin" | "signup";
 
 interface GoogleSignInButtonProps {
   variant?: GoogleSignInVariant;
+  temporaryLogin?: boolean;
 }
 
 /**
  * Renders Google Identity Services button; exchanges ID token with backend for JWT.
  * Requires VITE_GOOGLE_CLIENT_ID and wrapping app in GoogleOAuthProvider (see main.tsx).
  */
-const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ variant = "signin" }) => {
+const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
+  variant = "signin",
+  temporaryLogin = false,
+}) => {
   const navigate = useNavigate();
   const [googleAuth, { isLoading }] = useGoogleAuthMutation();
 
@@ -48,7 +52,10 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ variant = "sign
               return;
             }
             try {
-              const result = await googleAuth({ credential: token }).unwrap();
+              const result = await googleAuth({
+                credential: token,
+                temporary_login: temporaryLogin,
+              }).unwrap();
               if (result.success && result.data?.token) {
                 localStorage.setItem("token", result.data.token);
                 toast.success(result.message || "Signed in with Google!");
