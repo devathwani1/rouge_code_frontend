@@ -6,6 +6,7 @@ import type { AuthResult } from "./types";
 export interface AdminUserRow {
     user_id: number;
     email: string;
+    age: number | null;
     username: string;
     first_name: string;
     last_name: string;
@@ -29,19 +30,31 @@ export interface AdminUsersResponse {
     users: AdminUserRow[];
 }
 
+interface RegisterRequest {
+    email: string;
+    password: string;
+    confirm_password: string;
+    age: number;
+}
+
+interface LoginRequest {
+    email: string;
+    password: string;
+}
+
 export const authApi = createApi({
     reducerPath: "authApi",
     baseQuery,
     tagTypes: ["AdminUsers"],
     endpoints: (builder) => ({
-        register: builder.mutation<AuthResult, any>({
+        register: builder.mutation<AuthResult, RegisterRequest>({
             query: (userData) => ({
                 url: "accounts/register/",
                 method: "POST",
                 body: userData,
             }),
         }),
-        login: builder.mutation<AuthResult, any>({
+        login: builder.mutation<AuthResult, LoginRequest>({
             query: (credentials) => ({
                 url: "accounts/login/",
                 method: "POST",
