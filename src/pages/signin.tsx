@@ -11,6 +11,7 @@ const Signin: React.FC = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    temporaryLogin: false,
   });
   const emailRef = useRef<HTMLInputElement | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
@@ -30,7 +31,11 @@ const Signin: React.FC = () => {
       // (e.g., autofill or very fast clicking).
       const email = emailRef.current?.value ?? formData.email;
       const password = passwordRef.current?.value ?? formData.password;
-      const result = await login({ email, password }).unwrap();
+      const result = await login({
+        email,
+        password,
+        temporary_login: formData.temporaryLogin,
+      }).unwrap();
       if (result.success) {
         localStorage.setItem("token", result.data.token);
         toast.success(result.message || "Logged in successfully!");
@@ -107,6 +112,23 @@ const Signin: React.FC = () => {
             className="w-full bg-transparent border-2 border-blue-500 rounded-xl px-4 py-3 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400"
           />
 
+          <label className="flex items-start gap-3 text-sm text-gray-300">
+            <input
+              type="checkbox"
+              checked={formData.temporaryLogin}
+              onChange={(e) =>
+                setFormData({ ...formData, temporaryLogin: e.target.checked })
+              }
+              className="mt-1 h-4 w-4 rounded border-blue-500 bg-transparent text-blue-600 focus:ring-blue-400"
+            />
+            <span>
+              <span className="font-medium text-white">Temporary login</span>
+              <span className="block text-xs text-gray-400">
+                Use a 10-minute session token for this sign in.
+              </span>
+            </span>
+          </label>
+
           <Link to="/forget_pass" className="text-blue-500 hover:underline text-right transition block">
             Forget Password
           </Link>
@@ -126,7 +148,10 @@ const Signin: React.FC = () => {
           <span className="flex-1 h-px bg-gray-600" />
         </div>
 
-        <GoogleSignInButton variant="signin" />
+        <GoogleSignInButton
+          variant="signin"
+          temporaryLogin={formData.temporaryLogin}
+        />
 
         <p className="mt-8 text-center text-gray-400">
           Don’t have an account?{" "}
