@@ -52,9 +52,21 @@ const Signup: React.FC = () => {
           }, 2000);
         }
       }
-    } catch (err: any) {
-      const ageError = Array.isArray(err.data?.age) ? err.data.age[0] : undefined;
-      toast.error(err.data?.message || err.data?.detail || ageError || "Registration failed. Please try again.");
+    } catch (err: unknown) {
+      const errorData =
+        err && typeof err === "object" && "data" in err
+          ? (err.data as Record<string, unknown>)
+          : undefined;
+      const ageError = Array.isArray(errorData?.age) ? errorData.age[0] : undefined;
+      const message =
+        typeof errorData?.message === "string"
+          ? errorData.message
+          : typeof errorData?.detail === "string"
+            ? errorData.detail
+            : typeof ageError === "string"
+              ? ageError
+              : "Registration failed. Please try again.";
+      toast.error(message);
     }
   };
 
