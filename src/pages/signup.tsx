@@ -7,6 +7,14 @@ import { useRegisterMutation } from "../store/api/authApi";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import { ActionRequired } from "../store/api/types";
 
+type RegisterError = {
+  data?: {
+    age?: string | string[];
+    message?: string;
+    detail?: string;
+  };
+};
+
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -52,9 +60,10 @@ const Signup: React.FC = () => {
           }, 2000);
         }
       }
-    } catch (err: any) {
-      const ageError = err.data?.age?.[0] || err.data?.age;
-      toast.error(ageError || err.data?.message || err.data?.detail || "Registration failed. Please try again.");
+    } catch (err: unknown) {
+      const data = (err as RegisterError).data;
+      const ageError = Array.isArray(data?.age) ? data.age[0] : data?.age;
+      toast.error(ageError || data?.message || data?.detail || "Registration failed. Please try again.");
     }
   };
 

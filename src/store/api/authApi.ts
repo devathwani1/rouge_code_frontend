@@ -36,6 +36,11 @@ export interface RegisterRequest {
     age: number;
 }
 
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+
 export const authApi = createApi({
     reducerPath: "authApi",
     baseQuery,
@@ -48,7 +53,7 @@ export const authApi = createApi({
                 body: userData,
             }),
         }),
-        login: builder.mutation<AuthResult, any>({
+        login: builder.mutation<AuthResult, LoginRequest>({
             query: (credentials) => ({
                 url: "accounts/login/",
                 method: "POST",
