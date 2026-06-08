@@ -7,9 +7,12 @@ import { useRegisterMutation } from "../store/api/authApi";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import { ActionRequired } from "../store/api/types";
 
+const MINIMUM_REGISTRATION_AGE = 18;
+
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
     email: "",
+    age: "",
     password: "",
     confirm_password: "",
   });
@@ -24,13 +27,24 @@ const Signup: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const age = Number(formData.age);
+    if (!Number.isInteger(age)) {
+      toast.error("Please enter your age as a whole number.");
+      return;
+    }
+
+    if (age < MINIMUM_REGISTRATION_AGE) {
+      toast.error("You must be at least 18 years old to register.");
+      return;
+    }
+
     if (formData.password !== formData.confirm_password) {
       toast.error("Passwords do not match.");
       return;
     }
 
     try {
-      const result = await register(formData).unwrap();
+      const result = await register({ ...formData, age }).unwrap();
       if (result.success || result.action_required === ActionRequired.VERIFY_EMAIL) {
         toast.success(result.message || "Registration successful! Please verify your email.");
         setTimeout(() => {
@@ -85,6 +99,15 @@ const Signup: React.FC = () => {
           />
 
           <input
+            type="number"
+            placeholder="Age"
+            required
+            value={formData.age}
+            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+            className="w-full bg-transparent border-2 border-blue-500 rounded-xl px-4 py-3 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400"
+          />
+
+          <input
             type="password"
             placeholder="Password"
             required
@@ -117,7 +140,7 @@ const Signup: React.FC = () => {
           <span className="flex-1 h-px bg-gray-600" />
         </div>
 
-        <GoogleSignInButton variant="signup" />
+        <GoogleSignInButton variant="signup" age={Number(formData.age)} />
 
         <p className="mt-8 text-center text-gray-400">
           Already have an account?{" "}

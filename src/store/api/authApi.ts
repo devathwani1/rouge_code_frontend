@@ -48,7 +48,7 @@ export const authApi = createApi({
                 body: credentials,
             }),
         }),
-        googleAuth: builder.mutation<AuthResult, { credential: string }>({
+        googleAuth: builder.mutation<AuthResult, { credential: string; age?: number }>({
             query: (body) => ({
                 url: "accounts/google/",
                 method: "POST",

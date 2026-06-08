@@ -10,13 +10,14 @@ export type GoogleSignInVariant = "signin" | "signup";
 
 interface GoogleSignInButtonProps {
   variant?: GoogleSignInVariant;
+  age?: number;
 }
 
 /**
  * Renders Google Identity Services button; exchanges ID token with backend for JWT.
  * Requires VITE_GOOGLE_CLIENT_ID and wrapping app in GoogleOAuthProvider (see main.tsx).
  */
-const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ variant = "signin" }) => {
+const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ variant = "signin", age }) => {
   const navigate = useNavigate();
   const [googleAuth, { isLoading }] = useGoogleAuthMutation();
 
@@ -47,8 +48,21 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ variant = "sign
               toast.error("Google did not return a credential.");
               return;
             }
+            if (variant === "signup") {
+              if (!Number.isInteger(age)) {
+                toast.error("Please enter your age as a whole number.");
+                return;
+              }
+              if (age < 18) {
+                toast.error("You must be at least 18 years old to register.");
+                return;
+              }
+            }
             try {
-              const result = await googleAuth({ credential: token }).unwrap();
+              const result = await googleAuth({
+                credential: token,
+                ...(variant === "signup" ? { age } : {}),
+              }).unwrap();
               if (result.success && result.data?.token) {
                 localStorage.setItem("token", result.data.token);
                 toast.success(result.message || "Signed in with Google!");
