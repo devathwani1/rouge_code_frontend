@@ -119,6 +119,9 @@ const AdminUsers: React.FC = () => {
                                                 <p className="text-gray-500 text-xs mt-0.5 font-mono truncate max-w-[200px] lg:max-w-xs">
                                                     @{u.username}
                                                 </p>
+                                                <p className="text-gray-500 text-xs mt-0.5">
+                                                    Age {u.age ?? "—"}
+                                                </p>
                                                 <div className="flex flex-wrap gap-1.5 mt-2 lg:hidden">
                                                     {u.is_superuser && (
                                                         <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">

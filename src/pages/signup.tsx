@@ -10,6 +10,7 @@ import { ActionRequired } from "../store/api/types";
 const Signup: React.FC = () => {
   const [formData, setFormData] = useState({
     email: "",
+    age: "",
     password: "",
     confirm_password: "",
   });
@@ -29,8 +30,14 @@ const Signup: React.FC = () => {
       return;
     }
 
+    const age = Number(formData.age);
+    if (!Number.isInteger(age) || age < 18) {
+      toast.error("You must be at least 18 years old to sign up.");
+      return;
+    }
+
     try {
-      const result = await register(formData).unwrap();
+      const result = await register({ ...formData, age }).unwrap();
       if (result.success || result.action_required === ActionRequired.VERIFY_EMAIL) {
         toast.success(result.message || "Registration successful! Please verify your email.");
         setTimeout(() => {
@@ -46,7 +53,8 @@ const Signup: React.FC = () => {
         }
       }
     } catch (err: any) {
-      toast.error(err.data?.message || err.data?.detail || "Registration failed. Please try again.");
+      const ageError = Array.isArray(err.data?.age) ? err.data.age[0] : undefined;
+      toast.error(err.data?.message || err.data?.detail || ageError || "Registration failed. Please try again.");
     }
   };
 
@@ -81,6 +89,15 @@ const Signup: React.FC = () => {
             required
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full bg-transparent border-2 border-blue-500 rounded-xl px-4 py-3 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400"
+          />
+
+          <input
+            type="number"
+            placeholder="Age"
+            required
+            value={formData.age}
+            onChange={(e) => setFormData({ ...formData, age: e.target.value })}
             className="w-full bg-transparent border-2 border-blue-500 rounded-xl px-4 py-3 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-blue-400"
           />
 
