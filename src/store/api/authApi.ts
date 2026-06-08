@@ -29,19 +29,31 @@ export interface AdminUsersResponse {
     users: AdminUserRow[];
 }
 
+export interface RegisterRequest {
+    email: string;
+    password: string;
+    confirm_password: string;
+    age: number;
+}
+
+export interface LoginRequest {
+    email: string;
+    password: string;
+}
+
 export const authApi = createApi({
     reducerPath: "authApi",
     baseQuery,
     tagTypes: ["AdminUsers"],
     endpoints: (builder) => ({
-        register: builder.mutation<AuthResult, any>({
+        register: builder.mutation<AuthResult, RegisterRequest>({
             query: (userData) => ({
                 url: "accounts/register/",
                 method: "POST",
                 body: userData,
             }),
         }),
-        login: builder.mutation<AuthResult, any>({
+        login: builder.mutation<AuthResult, LoginRequest>({
             query: (credentials) => ({
                 url: "accounts/login/",
                 method: "POST",
