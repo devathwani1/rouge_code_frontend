@@ -48,8 +48,9 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ variant = "sign
               toast.error("Google did not return a credential.");
               return;
             }
+            let signupAge: number | undefined;
             if (variant === "signup") {
-              if (!Number.isInteger(age)) {
+              if (typeof age !== "number" || !Number.isInteger(age)) {
                 toast.error("Please enter your age as a whole number.");
                 return;
               }
@@ -57,11 +58,12 @@ const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({ variant = "sign
                 toast.error("You must be at least 18 years old to register.");
                 return;
               }
+              signupAge = age;
             }
             try {
               const result = await googleAuth({
                 credential: token,
-                ...(variant === "signup" ? { age } : {}),
+                ...(signupAge !== undefined ? { age: signupAge } : {}),
               }).unwrap();
               if (result.success && result.data?.token) {
                 localStorage.setItem("token", result.data.token);
